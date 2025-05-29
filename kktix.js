@@ -1,8 +1,24 @@
-const ticketCount = 3;
-const minPrice = 2000;
-const maxPrice = 7000
-// 如果沒有設定偏好的票種，會自動購買在價格區間內找到的第一種票
-const preferTickets = [];
+const ticketCount = 2;
+const minPrice = 4000;
+const maxPrice = 7000;
+// 如果有設定偏好的票種，並且符合價格區間，會照順序直接購買
+const preferTickets = [
+  '黃2C',
+  '黃2D',
+  '黃2B',
+  '黃2A',
+  '黃2E',
+  '黃3F',
+  '黃3E',
+  '黃3D',
+  '黃3G',
+  '黃3C',
+  '黃3H',
+  '黃3B',
+  '黃3I',
+  '黃3A',
+  '黃3J',
+];
 
 // ====== utilities
 
@@ -29,40 +45,38 @@ function submit() {
   }
 }
 
-function checkIsMatchPrice(ticketRow) {
+function checkIsInPriceRange(ticketRow) {
   const priceElement = ticketRow.querySelector('[ng-if="ticket.price.cents > 0"]');
-  const price = parseInt(priceElement.textContent.trim().replace(/[^0-9]/g, ''), 10);
+  const price = parseFloat(priceElement.childNodes[0].textContent.trim().replace(/[^0-9.]/g, ''));
 
   if (price > maxPrice || price < minPrice) return false;
   return true;
 }
 
-function checkIsPreferTicket(ticketRow) {
-  if (preferTickets.length === 0) return true;
-
-  const ticketName = ticketRow.querySelector('.ticket-name')?.textContent?.trim();
-
-  return preferTickets.includes(ticketName);
-}
-
 function tryingSetTicketCount(ticketRow) {
-  const input = ticketRow.querySelector('[ng-model="ticketModel.quantity"]');
-  const addBtn = ticketRow.querySelector('[ng-click="quantityBtnClick(1)"]');
-  const minusBtn = ticketRow.querySelector('[ng-click="quantityBtnClick(-1)"]');
+  try {
+    const input = ticketRow.querySelector('[ng-model="ticketModel.quantity"]');
+    const addBtn = ticketRow.querySelector('[ng-click="quantityBtnClick(1)"]');
+    const minusBtn = ticketRow.querySelector('[ng-click="quantityBtnClick(-1)"]');
 
-  for (let i = parseInt(input.value, 10); i < ticketCount; i++) {
-    addBtn.click();
+    for (let i = parseInt(input.value, 10); i < ticketCount; i++) {
+      addBtn.click();
+    }
+
+    const currentCount = parseInt(input.value, 10);
+
+    if (currentCount === ticketCount) {
+      return true;
+    }
+
+    console.log('設定票數失敗，歸零票數');
+
+    for (let i = 0; i < currentCount; i++) minusBtn.click();
+
+    return false;
+  } catch {
+    return false
   }
-
-  const currentCount = parseInt(input.value, 10);
-
-  if (currentCount === ticketCount) {
-    return true;
-  }
-
-  for (let i = 0; i < currentCount; i++) minusBtn.click();
-
-  return false;
 }
 
 // ====== main function
@@ -77,12 +91,9 @@ const ticketRows = Array.from(document.querySelectorAll('[ng-controller="TicketC
     return false;
   }
 
-  if (checkIsMatchPrice(ticketRow)) {
+  if (checkIsInPriceRange(ticketRow)) {
     ticketRow.setAttribute('style', 'background: yellow;');
-  }
-
-  if (checkIsMatchPrice(ticketRow) && checkIsPreferTicket(ticketRow)) {
-    ticketRow.setAttribute('data-auto-buy', '1');
+    ticketRow.setAttribute('data-in-price-range', 'true');
   }
 
   return true;
@@ -94,11 +105,16 @@ if (ticketRows.length === 0) {
   }
 }
 
-for (const ticketRow of ticketRows) {
-  const autoBuy = ticketRow.getAttribute('data-auto-buy') === '1';
+for (const preferTicket of preferTickets) {
+  const matchTicket = ticketRows.find((ele) => {
+    return ele.querySelector('.ticket-name')?.textContent?.trim() === preferTicket
+      && ele.getAttribute('data-in-price-range') === 'true'
+  });
 
-  if (autoBuy) {
-    if (tryingSetTicketCount(ticketRow)) {
+  if (matchTicket) {
+    console.log(`找到符合的票 "${preferTicket}"，開始嘗試購買...`);
+
+    if (tryingSetTicketCount(matchTicket)) {
       submit();
       break;
     }
