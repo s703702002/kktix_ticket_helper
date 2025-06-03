@@ -1,14 +1,9 @@
 const ticketCount = 2;
 /** 把最低到最高票價區間的票加上黃色背景色  */
-const minPrice = 4000; // 最低票價
-const maxPrice = 7000; // 最高票價
+const minPrice = 3000; // 最低票價
+const maxPrice = 6000; // 最高票價
 // 如果有設定偏好的票種，並且符合價格區間，會照順序直接購買
 const preferTickets = [
-  '黃2C',
-  '黃2D',
-  '黃2B',
-  '黃2A',
-  '黃2E',
   '黃3F',
   '黃3E',
   '黃3D',
