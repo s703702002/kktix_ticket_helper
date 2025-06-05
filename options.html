@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>票券設定</title>
+</head>
+<body>
+  <h1>設定票券參數</h1>
+  <label>
+    啟用
+    <input type="checkbox" id="enabled" />
+  </label>
+  <br>
+  <label>票數：<input type="number" id="ticketCount" /></label><br />
+  <label>最低票價：<input type="number" id="minPrice" /></label><br />
+  <label>最高票價：<input type="number" id="maxPrice" /></label><br />
+  <label>偏好票種（用逗號分隔）：<br />
+    <textarea id="preferTickets" rows="6" cols="30"></textarea>
+  </label><br />
+  <button id="save">儲存</button>
+  <div id="status"></div>
+  <script src="options.js"></script>
+</body>
+</html>
